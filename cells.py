@@ -3,10 +3,13 @@ import random
 import sys
 import time
 
+#set window's height and width. And cell size
 X_MAX = 500
 Y_MAX = 500
 CELL_SIZE = 25
+
 pygame.init()
+
 playSurface = pygame.display.set_mode((X_MAX, Y_MAX))
 fpsController = pygame.time.Clock()
 green = pygame.Color(0,255,0)
@@ -15,7 +18,8 @@ black = pygame.Color(0,0,0)
 
 matrix = []
 
-class matrix_cell():
+
+class Matrix_cell():
     def __init__(self, x, y, size):
         self.size = size
         self.x = x * self.size
@@ -23,22 +27,18 @@ class matrix_cell():
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
         self.live = False
         self.neibours = 0
-                 
+      
+#creating matrix
 def create_matrix(size):
     l = {}
     for i in range(Y_MAX//size):
         for j in range(X_MAX//size):
-            l.update({(i, j): matrix_cell(i, j, size)})
+            l.update({(i, j): Matrix_cell(i, j, size)})
     return l
 
+#checking neibours around
 def get_neibours(matrix, x, y):
     neibours = 0
-    #if 0 < y < Y_MAX//CELL_SIZE-1 and 0 < x < X_MAX//CELL_SIZE-1:
-    #    dx = [-1, 0, 1]
-    #    dy = [-1, 0, 1]
-    
-    #elif x==0:
-    #    dx = [X_MAX//CELL_SIZE-1, 0, 1]
     if y == 0:
         dy = [Y_MAX//CELL_SIZE-1, 0, 1]
     elif y == Y_MAX//CELL_SIZE-1:
@@ -59,6 +59,7 @@ def get_neibours(matrix, x, y):
                     neibours += 1
     return neibours
 
+
 def draw_matrix(surface, matrix):
     for cords, rec in matrix.items():
         if rec.live:
@@ -67,13 +68,14 @@ def draw_matrix(surface, matrix):
         else:
             pygame.draw.rect(surface, black, rec.rect, 1)
 
+
 def clicked(matrix, x, y):
     if matrix[x//CELL_SIZE, y//CELL_SIZE].live:
         matrix[x//CELL_SIZE, y//CELL_SIZE].live = False
     else:
         matrix[x//CELL_SIZE, y//CELL_SIZE].live = True
-    #print(x//CELL_SIZE, y//CELL_SIZE)
 
+#updating state of the cell is it live or not
 def update_state(matrix):
     for j in range(Y_MAX//CELL_SIZE):
         for i in range(X_MAX//CELL_SIZE):
@@ -86,8 +88,10 @@ def update_state(matrix):
             else:
                 matrix[i,j].live = False
 
+
 M = create_matrix(CELL_SIZE)
 Start = False
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -97,11 +101,13 @@ while True:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-            if event.key == ord('s'):
+            #press space to start/stop the game
+            if event.key == pygame.K_SPACE:
                 if Start:
                     Start = False
                 else:
                     Start = True
+        # define live cells
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x , y = event.pos
             clicked(M, x, y)
@@ -110,4 +116,5 @@ while True:
     if Start:
         update_state(M)
     pygame.display.flip()
+    #change value to increase game speed
     fpsController.tick(3) 
